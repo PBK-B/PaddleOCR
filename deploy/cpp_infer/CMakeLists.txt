@@ -12,8 +12,9 @@ SET(CUDA_LIB "" CACHE PATH "Location of libraries")
 SET(CUDNN_LIB "" CACHE PATH "Location of libraries")
 SET(TENSORRT_DIR "" CACHE PATH "Compile demo with TensorRT")
 
-set(DEMO_NAME "ppocr")
+set(DEMO_NAME "infer")
 
+# set(CMAKE_EXE_LINKER_FLAGS "-static")
 
 macro(safe_set_static_flag)
     foreach(flag_var
@@ -205,7 +206,7 @@ endif()
 
 
 if (NOT WIN32)
-    set(EXTERNAL_LIB "-ldl -lrt -lgomp -lz -lm -lpthread")
+    set(EXTERNAL_LIB "-ldl -lz -lm -lpthread")
     set(DEPS ${DEPS} ${EXTERNAL_LIB})
 endif()
 
