@@ -103,6 +103,7 @@ void Classifier::Run(std::vector<cv::Mat> img_list,
 
 void Classifier::LoadModel(const std::string &model_dir) {
   paddle_infer::Config config;
+  config.DisableGlogInfo();
   config.SetModel(model_dir + "/inference.pdmodel",
                   model_dir + "/inference.pdiparams");
 

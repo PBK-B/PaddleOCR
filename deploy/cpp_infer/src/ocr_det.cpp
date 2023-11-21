@@ -19,6 +19,7 @@ namespace PaddleOCR {
 void DBDetector::LoadModel(const std::string &model_dir) {
   //   AnalysisConfig config;
   paddle_infer::Config config;
+  config.DisableGlogInfo();
   config.SetModel(model_dir + "/inference.pdmodel",
                   model_dir + "/inference.pdiparams");
 

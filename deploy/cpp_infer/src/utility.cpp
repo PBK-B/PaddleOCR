@@ -281,6 +281,44 @@ void Utility::print_result(const std::vector<OCRPredictResult> &ocr_result) {
   }
 }
 
+// 输出 json 结果
+void Utility::print_result_json(const std::vector<OCRPredictResult> &ocr_result) {
+  std::cout << "[";
+  for (int i = 0; i < ocr_result.size(); i++) {
+    std::cout << std::endl;
+    std::cout << "\t" << "{" << std::endl;
+
+    // boxes
+    std::vector<std::vector<int>> boxes = ocr_result[i].box;
+    if (boxes.size() > 0) {
+      std::cout << "\t" << "\t" << "\"boxes\": [";
+      for (int n = 0; n < boxes.size(); n++) {
+        std::cout << '[' << boxes[n][0] << ',' << boxes[n][1] << "]";
+        if (n != boxes.size() - 1) {
+          std::cout << ',';
+        }
+      }
+      std::cout << "], ";
+    }
+
+    // data
+    if (ocr_result[i].score != -1.0) {
+      std::cout << std::endl << "\t" << "\t";
+      std::cout << "\"text\": \"" << Utility::sub_replace(ocr_result[i].text, "\"", "\\\"") << "\",";
+      std::cout << std::endl << "\t" << "\t";
+      std::cout << "\"score\": \"" << ocr_result[i].score << "\"";
+    }
+
+    std::cout << std::endl << "\t" << "}";
+    if (i != ocr_result.size() - 1) {
+      std::cout << ',';
+    }
+  }
+  std::cout << std::endl;
+  std::cout << "]";
+  std::cout << std::endl;
+}
+
 cv::Mat Utility::crop_image(cv::Mat &img, const std::vector<int> &box) {
   cv::Mat crop_im;
   int crop_x1 = std::max(0, box[0]);
@@ -420,6 +458,25 @@ float Utility::iou(std::vector<float> &box1, std::vector<float> &box2) {
     float intersect = (x2 - x1) * (y2 - y1);
     return intersect / (sum_area - intersect + 0.00000001);
   }
+}
+
+/*
+ 函数说明：对字符串中所有指定的子串进行替换
+ 参数：
+string resource_str            //源字符串
+string sub_str                //被替换子串
+string new_str                //替换子串
+返回值: string
+ */
+std::string Utility::sub_replace(std::string resource_str, std::string sub_str, std::string new_str)
+{
+    std::string dst_str = resource_str;
+    std::string::size_type pos = 0;
+    while((pos = dst_str.find(sub_str)) != std::string::npos)   //替换所有指定子串
+    {
+        dst_str.replace(pos, sub_str.length(), new_str);
+    }
+    return dst_str;
 }
 
 } // namespace PaddleOCR

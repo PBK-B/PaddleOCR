@@ -26,21 +26,21 @@ using namespace PaddleOCR;
 void check_params() {
   if (FLAGS_det) {
     if (FLAGS_det_model_dir.empty() || FLAGS_image_dir.empty()) {
-      std::cout << "Usage[det]: ./ppocr "
+      std::cout << "Usage[det]: ./infer "
                    "--det_model_dir=/PATH/TO/DET_INFERENCE_MODEL/ "
                 << "--image_dir=/PATH/TO/INPUT/IMAGE/" << std::endl;
       exit(1);
     }
   }
   if (FLAGS_rec) {
-    std::cout
-        << "In PP-OCRv3, rec_image_shape parameter defaults to '3, 48, 320',"
-           "if you are using recognition model with PP-OCRv2 or an older "
-           "version, "
-           "please set --rec_image_shape='3,32,320"
-        << std::endl;
+    // std::cout
+    //     << "In PP-OCRv3, rec_image_shape parameter defaults to '3, 48, 320',"
+    //        "if you are using recognition model with PP-OCRv2 or an older "
+    //        "version, "
+    //        "please set --rec_image_shape='3,32,320"
+    //     << std::endl;
     if (FLAGS_rec_model_dir.empty() || FLAGS_image_dir.empty()) {
-      std::cout << "Usage[rec]: ./ppocr "
+      std::cout << "Usage[rec]: ./infer "
                    "--rec_model_dir=/PATH/TO/REC_INFERENCE_MODEL/ "
                 << "--image_dir=/PATH/TO/INPUT/IMAGE/" << std::endl;
       exit(1);
@@ -48,7 +48,7 @@ void check_params() {
   }
   if (FLAGS_cls && FLAGS_use_angle_cls) {
     if (FLAGS_cls_model_dir.empty() || FLAGS_image_dir.empty()) {
-      std::cout << "Usage[cls]: ./ppocr "
+      std::cout << "Usage[cls]: ./infer "
                 << "--cls_model_dir=/PATH/TO/REC_INFERENCE_MODEL/ "
                 << "--image_dir=/PATH/TO/INPUT/IMAGE/" << std::endl;
       exit(1);
@@ -57,7 +57,7 @@ void check_params() {
   if (FLAGS_table) {
     if (FLAGS_table_model_dir.empty() || FLAGS_det_model_dir.empty() ||
         FLAGS_rec_model_dir.empty() || FLAGS_image_dir.empty()) {
-      std::cout << "Usage[table]: ./ppocr "
+      std::cout << "Usage[table]: ./infer "
                 << "--det_model_dir=/PATH/TO/DET_INFERENCE_MODEL/ "
                 << "--rec_model_dir=/PATH/TO/REC_INFERENCE_MODEL/ "
                 << "--table_model_dir=/PATH/TO/TABLE_INFERENCE_MODEL/ "
@@ -67,7 +67,7 @@ void check_params() {
   }
   if (FLAGS_layout) {
     if (FLAGS_layout_model_dir.empty() || FLAGS_image_dir.empty()) {
-      std::cout << "Usage[layout]: ./ppocr "
+      std::cout << "Usage[layout]: ./infer "
                 << "--layout_model_dir=/PATH/TO/LAYOUT_INFERENCE_MODEL/ "
                 << "--image_dir=/PATH/TO/INPUT/IMAGE/" << std::endl;
       exit(1);
@@ -105,13 +105,30 @@ void ocr(std::vector<cv::String> &cv_all_img_names) {
       ocr.ocr(img_list, FLAGS_det, FLAGS_rec, FLAGS_cls);
 
   for (int i = 0; i < img_names.size(); ++i) {
-    std::cout << "predict img: " << cv_all_img_names[i] << std::endl;
-    Utility::print_result(ocr_results[i]);
-    if (FLAGS_visualize && FLAGS_det) {
+    if (FLAGS_data_format == "json") {
+      cv::Mat srcimg = img_list[i];
+
+      std::cout << "{" << std::endl << "";
+      // image info
+      std::cout << std::endl << "\t" <<  "\"image\": { \"width\": " << srcimg.cols << ", \"height\": " << srcimg.rows << "}, ";
+
+      // result list
+      std::cout << std::endl << "\t" << "\"result\":" << "";
+      Utility::print_result_json(ocr_results[i]);
+
+      std::cout << std::endl << "}" << std::endl;
+    } else {
+      std::cout << "predict img: " << cv_all_img_names[i] << std::endl;
+      Utility::print_result(ocr_results[i]);
+    }
+    if (FLAGS_visualize && FLAGS_det && FLAGS_data_format != "json") {
+      if (!Utility::PathExists(FLAGS_output)) {
+        Utility::CreateDir(FLAGS_output);
+      }
       std::string file_name = Utility::basename(img_names[i]);
       cv::Mat srcimg = img_list[i];
       Utility::VisualizeBboxes(srcimg, ocr_results[i],
-                               FLAGS_output + "/" + file_name);
+                               FLAGS_output + file_name);
     }
   }
   if (FLAGS_benchmark) {
@@ -187,11 +204,11 @@ int main(int argc, char **argv) {
 
   std::vector<cv::String> cv_all_img_names;
   cv::glob(FLAGS_image_dir, cv_all_img_names);
-  std::cout << "total images num: " << cv_all_img_names.size() << std::endl;
 
-  if (!Utility::PathExists(FLAGS_output)) {
-    Utility::CreateDir(FLAGS_output);
+  if (FLAGS_data_format != "json") {
+    std::cout << "total images num: " << cv_all_img_names.size() << std::endl;
   }
+
   if (FLAGS_type == "ocr") {
     ocr(cv_all_img_names);
   } else if (FLAGS_type == "structure") {

@@ -131,11 +131,12 @@ void CRNNRecognizer::Run(std::vector<cv::Mat> img_list,
 
 void CRNNRecognizer::LoadModel(const std::string &model_dir) {
   paddle_infer::Config config;
+  config.DisableGlogInfo();
   config.SetModel(model_dir + "/inference.pdmodel",
                   model_dir + "/inference.pdiparams");
-  std::cout << "In PP-OCRv3, default rec_img_h is 48,"
-            << "if you use other model, you should set the param rec_img_h=32"
-            << std::endl;
+//   std::cout << "In PP-OCRv3, default rec_img_h is 48,"
+//             << "if you use other model, you should set the param rec_img_h=32"
+//             << std::endl;
   if (this->use_gpu_) {
     config.EnableUseGpu(this->gpu_mem_, this->gpu_id_);
     if (this->use_tensorrt_) {

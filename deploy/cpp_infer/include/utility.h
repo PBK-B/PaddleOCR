@@ -82,6 +82,7 @@ public:
   static void CreateDir(const std::string &path);
 
   static void print_result(const std::vector<OCRPredictResult> &ocr_result);
+  static void print_result_json(const std::vector<OCRPredictResult> &ocr_result);
 
   static cv::Mat crop_image(cv::Mat &img, const std::vector<int> &area);
   static cv::Mat crop_image(cv::Mat &img, const std::vector<float> &area);
@@ -90,6 +91,8 @@ public:
 
   static std::vector<int> xyxyxyxy2xyxy(std::vector<std::vector<int>> &box);
   static std::vector<int> xyxyxyxy2xyxy(std::vector<int> &box);
+  
+  static std::string sub_replace(std::string resource_str, std::string sub_str, std::string new_str);
 
   static float fast_exp(float x);
   static std::vector<float>
