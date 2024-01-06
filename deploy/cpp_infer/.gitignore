@@ -1,0 +1,5 @@
+
+/build_*
+/inferences
+/opencv-*
+/paddle_inference_install_dir
